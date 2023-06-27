@@ -45,4 +45,28 @@ whatsapp.onConnecting((session) => {
   console.log("connecting => ", session);
 });
 
+whatsapp.onMessageReceived(async (msg) => {
+  // DEBUG
+  // console.log(`New Message Received On Session: ${msg.sessionId} >>>`, msg);
+
+  if (
+    (msg.message.extendedTextMessage != undefined ||
+      msg.message.conversation != undefined) &&
+    // msg.key.fromMe === false && // to enable self checking
+    msg.key.participant === undefined &&
+    msg.broadcast === false
+  ) {
+    if (
+      msg.message.extendedTextMessage?.text.toLowerCase() === "ping" ||
+      msg.message.conversation?.toLowerCase() === "ping"
+    ) {
+      await whatsapp.sendTextMessage({
+        sessionId: msg.sessionId,
+        to: msg.key.remoteJid,
+        text: "pong",
+      });
+    }
+  }
+});
+
 whatsapp.loadSessionsFromStorage();
