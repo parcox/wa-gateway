@@ -46,19 +46,21 @@ whatsapp.onConnecting((session) => {
 });
 
 whatsapp.onMessageReceived(async (msg) => {
-  if (msg.key.participant === undefined && msg.broadcast === false) {
-    // add msg.key.fromMe === false && // to disable self ping
-    if (
-      msg?.message?.extendedTextMessage?.text?.toLowerCase() === "ping" ||
-      msg?.message?.conversation?.toLowerCase() === "ping"
-    ) {
-      console.log(`ping message received => ${msg.sessionId}`);
-      await whatsapp.sendTextMessage({
-        sessionId: msg.sessionId,
-        to: msg.key.remoteJid,
-        text: "pong",
-      });
-    }
+  // add "|| msg.key.fromMe === true" to disable self ping
+  if (msg.key.participant != undefined || msg.broadcast === true) {
+    return;
+  }
+
+  if (
+    msg?.message?.extendedTextMessage?.text?.toLowerCase() === "ping" ||
+    msg?.message?.conversation?.toLowerCase() === "ping"
+  ) {
+    console.log(`ping message received => ${msg.sessionId}`);
+    await whatsapp.sendTextMessage({
+      sessionId: msg.sessionId,
+      to: msg.key.remoteJid,
+      text: "pong",
+    });
   }
 });
 
