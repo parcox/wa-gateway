@@ -1,3 +1,4 @@
+const { config } = require("dotenv");
 const { toDataURL } = require("qrcode");
 const whatsapp = require("wa-multi-session");
 const ValidationError = require("../../utils/error");
@@ -6,6 +7,10 @@ const {
   responseSuccessWithData,
 } = require("../../utils/response");
 
+config();
+
+const MODIFY_SESSION_KEY = process.env.MODIFY_SESSION_KEY;
+
 exports.createSession = async (req, res, next) => {
   try {
     const scan = req.query.scan;
@@ -13,6 +18,10 @@ exports.createSession = async (req, res, next) => {
       req.body.session || req.query.session || req.headers.session;
     if (!sessionName) {
       throw new Error("Bad Request");
+    }
+    const key = req.body.key || req.query.key || req.headers.key;
+    if (!key || key != MODIFY_SESSION_KEY) {
+      throw new Error("Invalid key");
     }
     whatsapp.onQRUpdated(async (data) => {
       if (res && !res.headersSent) {
@@ -39,6 +48,10 @@ exports.deleteSession = async (req, res, next) => {
       req.body.session || req.query.session || req.headers.session;
     if (!sessionName) {
       throw new ValidationError("session Required");
+    }
+    const key = req.body.key || req.query.key || req.headers.key;
+    if (!key || key != MODIFY_SESSION_KEY) {
+      throw new Error("Invalid key");
     }
     whatsapp.deleteSession(sessionName);
     res
