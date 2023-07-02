@@ -21,7 +21,7 @@ exports.createSession = async (req, res, next) => {
     }
     const key = req.body.key || req.query.key || req.headers.key;
     if (!key || key != MODIFY_SESSION_KEY) {
-      throw new Error("Invalid key");
+      throw new ValidationError("Invalid key");
     }
     whatsapp.onQRUpdated(async (data) => {
       if (res && !res.headersSent) {
@@ -51,7 +51,7 @@ exports.deleteSession = async (req, res, next) => {
     }
     const key = req.body.key || req.query.key || req.headers.key;
     if (!key || key != MODIFY_SESSION_KEY) {
-      throw new Error("Invalid key");
+      throw new ValidationError("Invalid key");
     }
     whatsapp.deleteSession(sessionName);
     res

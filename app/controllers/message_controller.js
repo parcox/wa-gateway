@@ -1,6 +1,11 @@
+const { config } = require("dotenv");
 const whatsapp = require("wa-multi-session");
 const ValidationError = require("../../utils/error");
 const { responseSuccessWithData } = require("../../utils/response");
+
+config();
+
+const API_KEY = process.env.API_KEY;
 
 exports.sendMessage = async (req, res, next) => {
   try {
@@ -11,6 +16,11 @@ exports.sendMessage = async (req, res, next) => {
       req.body.session || req.query.session || req.headers.session;
 
     if (!to || !text) throw new ValidationError("Missing Parameters");
+
+    const key = req.body.key || req.query.key || req.headers.key;
+    if (!key || key != API_KEY) {
+      throw new ValidationError("Invalid key");
+    }
 
     const receiver = to;
     if (!sessionId) throw new ValidationError("Session Not Founds");
@@ -46,6 +56,12 @@ exports.sendBulkMessage = async (req, res, next) => {
         },
       });
     }
+
+    const key = req.body.key || req.query.key || req.headers.key;
+    if (!key || key != API_KEY) {
+      throw new ValidationError("Invalid key");
+    }
+
     res.status(200).json({
       status: true,
       data: {
